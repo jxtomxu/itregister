@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉浸式翻译API使用说明</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .highlight {
+            background-color: #fffacd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .copy-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .copy-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .copy-button:active {
+            transform: translateY(0);
+        }
+        .api-key-container {
+            background-color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .api-key-label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .api-key {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            background-color: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+    <h1>沉浸式翻译API使用说明</h1>
+    
+    <div class="step">
+        <h2>第一步：点击设置</h2>
+        <p>在沉浸式翻译插件中，找到并点击设置按钮。</p>
+        <img src="https://s3.bmp.ovh/imgs/2024/10/04/8551987b5d712733.png" alt="设置按钮位置">
+    </div>
+
+    <div class="step">
+        <h2>第二步：选择翻译服务</h2>
+        <p>在设置页面中，将翻译服务选择为 <span class="highlight">OpenAI</span>。</p>
+        <img src="https://s3.bmp.ovh/imgs/2024/10/04/9f446237c2a7dd9c.png" alt="选择OpenAI服务">
+    </div>
+
+    <div class="step">
+        <h2>第三步：填写API密钥</h2>
+        <p>选择"自定义API KEY"选项，然后填入以 <span class="highlight">SK-</span> 开头的API密钥。</p>
+        <div class="api-key-container">
+            <div class="api-key-label">您的API Key是：</div>
+            <div class="api-key" id="apiKeyDisplay"></div>
+            <button id="copyApiKeyButton" class="copy-button">复制 API Key</button>
+        </div>
+        <img src="https://s3.bmp.ovh/imgs/2024/10/04/4efd0de33d149db3.png" alt="填写API密钥">
+    </div>
+
+    <div class="step">
+        <h2>第四步：选择模型</h2>
+        <p>
+            建议选择 <span class="highlight">gpt-4o-mini</span> 模型，效果好，并且速度快
+        </p>
+        <img src="https://s3.bmp.ovh/imgs/2024/10/04/962726176033b018.png" alt="选择模型">
+    </div>
+
+    <div class="step">
+        <h2>第五步：设置自定义API接口地址</h2>
+        <p>
+            在自定义API接口地址栏填写：
+        </p>
+        <p>
+            <span class="highlight">https://api.toandfro.cn/</span>
+            <button class="copy-button" onclick="copyToClipboard(this, 'https://api.toandfro.cn/')">复制</button>
+        </p>
+        <img src="https://s3.bmp.ovh/imgs/2024/10/04/5f78dd4630168a6c.png" alt="设置自定义API接口地址">
+    </div>
+
+    <div class="step">
+        <h2>第六步：完成设置</h2>
+        <p>
+            1. 关闭设置页面<br>
+            2. 刷新需翻译的网页
+        </p>
+    </div>
+
+    <div class="step">
+        <h2>查询API密钥到期日期</h2>
+        <p>
+            如果您需要查询API密钥的到期日期，请访问以下网址：
+        </p>
+        <p>
+            <span class="highlight">https://checkit.toandfro.cn/</span>
+            <button class="copy-button" onclick="copyToClipboard(this, 'https://checkit.toandfro.cn/')">复制链接</button>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const apiKey = urlParams.get('apiKey');
+
+            if (apiKey) {
+                document.getElementById('apiKeyDisplay').textContent = apiKey;
+            } else {
+                document.querySelector('.api-key-container').style.display = 'none';
+            }
+
+            document.getElementById('copyApiKeyButton').addEventListener('click', function() {
+                const apiKeyText = document.getElementById('apiKeyDisplay').textContent;
+                copyToClipboard(this, apiKeyText);
+            });
+        });
+
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(function() {
+                button.textContent = '已复制';
+                button.style.backgroundColor = '#2980b9';
+                setTimeout(function() {
+                    button.textContent = '复制 API Key';
+                    button.style.backgroundColor = '#3498db';
+                }, 2000);
+            }, function(err) {
+                console.error('无法复制文本: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

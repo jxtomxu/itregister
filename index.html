@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉浸式翻译注册</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-size: 1.1rem;
+        }
+        input {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+        .id-description {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .info strong {
+            color: #34495e;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            input {
+                font-size: 16px;
+            }
+            .id-description {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 修改以下样式 */
+        .api-key-container {
+            background-color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .api-key-label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .api-key {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            background-color: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+        }
+        .result-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .result-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .result-button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <div id="registrationPage" class="page active">
+            <h1>注册</h1>
+            <form id="registrationForm">
+                <label for="key">KEY</label>
+                <input type="text" id="key" name="key" required>
+                
+                <label for="id">ID</label>
+                <input type="text" id="id" name="id" required placeholder="填写您喜欢的ID">
+                <div class="id-description">ID用于方便后续售后，填写您喜欢的就行，不少于5个字符</div>
+                
+                <button type="submit">提交</button>
+            </form>
+            <div id="message" class="message hidden"></div>
+        </div>
+        
+        <div id="confirmPage" class="page">
+            <h1>确认信息</h1>
+            <div class="info">
+                <p><strong>KEY:</strong> <span id="keyDisplay"></span></p>
+                <p><strong>ID:</strong> <span id="idDisplay"></span></p>
+            </div>
+            <div class="warning">
+                请仔细核对您的ID。此ID将用于后期售后服务，请务必牢记。
+            </div>
+            <div class="buttons">
+                <button onclick="showPage('registrationPage')">返回修改</button>
+                <button id="submitButton" onclick="submitForm()">确认提交</button>
+            </div>
+            <div id="confirmMessage" class="message hidden"></div>
+        </div>
+        
+        <div id="resultPage" class="page">
+            <h1>注册结果</h1>
+            <div id="resultMessage" class="message"></div>
+            <div class="api-key-container">
+                <div class="api-key-label">您的API Key是：</div>
+                <div class="api-key" id="apiKey"></div>
+                <button id="copyButton" class="result-button">复制 API Key</button>
+            </div>
+            <button id="usageButton" class="result-button">查看使用方法</button>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const key = params.get('key');
+            if (key) {
+                document.getElementById('key').value = key;
+            }
+
+            document.getElementById('registrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const key = document.getElementById('key').value;
+                const id = document.getElementById('id').value;
+                
+                if (id.length < 5) {
+                    const messageElement = document.getElementById('message');
+                    messageElement.textContent = 'ID必须至少包含5个字符';
+                    messageElement.classList.remove('hidden');
+                    messageElement.classList.add('error');
+                    return;
+                }
+
+                document.getElementById('keyDisplay').textContent = key;
+                document.getElementById('idDisplay').textContent = id;
+                showPage('confirmPage');
+            });
+        });
+
+        function submitForm() {
+            const key = document.getElementById('keyDisplay').textContent;
+            const id = document.getElementById('idDisplay').textContent;
+            const submitButton = document.getElementById('submitButton');
+            const confirmMessage = document.getElementById('confirmMessage');
+            
+            submitButton.textContent = '正在提交...';
+            submitButton.disabled = true;
+            confirmMessage.classList.add('hidden');
+            
+            let timeoutId = setTimeout(() => {
+                submitButton.textContent = '确认提交';
+                submitButton.disabled = false;
+                confirmMessage.textContent = '提交超时，请重试。';
+                confirmMessage.classList.remove('hidden');
+                confirmMessage.classList.add('error');
+            }, 15000);
+            
+            sendPostRequest({ KEY: key, USER_ID: id })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    handleResponse(response);
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    handleError(error);
+                    submitButton.textContent = '确认提交';
+                    submitButton.disabled = false;
+                });
+        }
+
+        function sendPostRequest(data) {
+            const webhookUrl = 'https://n8n.colorland.top/webhook/1I4ZiK8ZnMEblfAJ/webhook/immersivetranslate';
+            
+            return fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            });
+        }
+
+        function handleResponse(response) {
+            document.getElementById('resultMessage').textContent = response.message;
+            document.getElementById('apiKey').textContent = response.data.key;
+            showPage('resultPage');
+
+            document.getElementById('copyButton').addEventListener('click', function() {
+                copyToClipboard(this, response.data.key);
+            });
+
+            document.getElementById('usageButton').addEventListener('click', function() {
+                const apiKey = document.getElementById('apiKey').textContent;
+                window.open('instructions.html?apiKey=' + encodeURIComponent(apiKey), '_blank');
+            });
+        }
+
+        function handleError(error) {
+            const messageElement = document.getElementById('confirmMessage');
+            messageElement.textContent = error.message || '提交失败，请重试。';
+            messageElement.classList.remove('hidden');
+            messageElement.classList.add('error');
+        }
+
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(function() {
+                button.textContent = '已复制';
+                setTimeout(function() {
+                    button.textContent = '复制';
+                }, 2000);
+            }, function(err) {
+                console.error('无法复制文本: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
