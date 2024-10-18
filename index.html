@@ -3,325 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>沉浸式翻译注册</title>
+    <title>沉浸式翻译自助兑换</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #60a5fa;
+            --accent-color: #1d4ed8;
+            --background-color: #f0f9ff;
+            --text-color: #1e293b;
+            --card-background: #ffffff;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-            background-color: #f5f7fa;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
         }
         .container {
-            background-color: white;
-            padding: 2.5rem;
+            background-color: var(--card-background);
             border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 500px;
+            padding: 30px; /* 减少一些内边距 */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 360px;
+            width: 100%;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
         }
         h1 {
-            color: #2c3e50;
+            color: var(--primary-color);
             text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 0.5rem;
-            color: #34495e;
-            font-size: 1.1rem;
-        }
-        input {
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #bdc3c7;
+        input, button {
+            width: 100%; /* 改为100%宽度 */
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box; /* 确保padding不会增加元素的总宽度 */
         }
         input:focus {
+            border-color: var(--accent-color);
             outline: none;
-            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
         }
         button {
-            background-color: #3498db;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: var(--accent-color);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         button:active {
             transform: translateY(0);
         }
-        .message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
         .hidden {
             display: none;
         }
-        .id-description {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-top: -0.5rem;
-            margin-bottom: 1rem;
+        .input-description {
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin-top: 5px;
+            margin-bottom: 15px;
         }
-        .page {
-            display: none;
+        .action-button {
+            background-color: var(--secondary-color);
+            margin: 10px 0;
+            height: 80px;
+            font-size: 18px;
         }
-        .page.active {
-            display: block;
+        .action-button:hover {
+            background-color: var(--primary-color);
         }
-        .info strong {
-            color: #34495e;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
         }
-        .buttons {
+        .result-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
-        @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            input {
-                font-size: 16px;
-            }
-            .id-description {
-                font-size: 0.8rem;
-            }
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        /* 修改以下样式 */
-        .api-key-container {
-            background-color: #ecf0f1;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-        .api-key-label {
+        .result-label {
             font-weight: bold;
-            margin-bottom: 0.5rem;
+            color: var(--text-color);
         }
-        .api-key {
+        .result-value {
+            color: var(--accent-color);
             word-break: break-all;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-            background-color: #fff;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid #bdc3c7;
         }
-        .result-button {
-            background-color: #3498db;
+        .success-page {
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 72px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        .success-message {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .copy-button {
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s, transform 0.1s;
-            width: 100%;
-            margin-top: 1rem;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: auto;
+            display: inline-block;
         }
-        .result-button:hover {
-            background-color: #2980b9;
+        .copy-button:hover {
+            background-color: var(--accent-color);
             transform: translateY(-2px);
         }
-        .result-button:active {
-            transform: translateY(0);
+        .api-key-container {
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        /* 新增样式，为新用户注册页面的输入框和按钮创建一个容器 */
+        .input-container {
+            width: 100%; /* 改为100%宽度 */
+            max-width: none; /* 移除最大宽度限制 */
+            margin: 0; /* 移除外边距 */
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="app" class="container">
-        <div id="registrationPage" class="page active">
-            <h1>注册</h1>
-            <form id="registrationForm">
-                <label for="key">KEY</label>
-                <input type="text" id="key" name="key" required>
-                
-                <label for="id">ID</label>
-                <input type="text" id="id" name="id" required placeholder="填写您喜欢的ID">
-                <div class="id-description">ID用于方便后续售后，填写您喜欢的就行，不少于5个字符</div>
-                
-                <button type="submit">提交</button>
-            </form>
-            <div id="message" class="message hidden"></div>
+    <div class="container fade-in">
+        <div id="homePage">
+            <h1>沉浸式翻译<br>自助兑换</h1>
+            <button class="action-button pulse" onclick="showPage('newUserPage')">新用户注册</button>
+            <button class="action-button" onclick="showPage('existingUserPage')">老用户充值</button>
         </div>
-        
-        <div id="confirmPage" class="page">
-            <h1>确认信息</h1>
-            <div class="info">
-                <p><strong>KEY:</strong> <span id="keyDisplay"></span></p>
-                <p><strong>ID:</strong> <span id="idDisplay"></span></p>
+        <div id="newUserPage" class="hidden">
+            <h1>新用户注册</h1>
+            <div class="input-container">
+                <input type="text" id="newUserKey" placeholder="Key" readonly>
+                <input type="text" id="newUserName" placeholder="请输入用户名">
+                <p class="input-description">用户名将用于后续售后服务，请谨慎填写。</p>
+                <button onclick="sendWebhook('id')">提交</button>
+                <button onclick="goBack()">返回</button>
             </div>
-            <div class="warning">
-                请仔细核对您的ID。此ID将用于后期售后服务，请务必牢记。
-            </div>
-            <div class="buttons">
-                <button onclick="showPage('registrationPage')">返回修改</button>
-                <button id="submitButton" onclick="submitForm()">确认提交</button>
-            </div>
-            <div id="confirmMessage" class="message hidden"></div>
         </div>
-        
-        <div id="resultPage" class="page">
-            <h1>注册结果</h1>
-            <div id="resultMessage" class="message"></div>
-            <div class="api-key-container">
-                <div class="api-key-label">您的API Key是：</div>
-                <div class="api-key" id="apiKey"></div>
-                <button id="copyButton" class="result-button">复制 API Key</button>
-            </div>
-            <button id="usageButton" class="result-button">查看使用方法</button>
+        <div id="existingUserPage" class="hidden">
+            <h1>老用户充值</h1>
+            <input type="text" id="existingUserKey" placeholder="Key" readonly>
+            <input type="text" id="existingUserApiKey" placeholder="请输入API-KEY">
+            <p class="input-description">API-KEY是以sk-开头的一串字符，请完整输入。</p>
+            <button onclick="sendWebhook('api')">提交</button>
+            <button onclick="goBack()">返回</button>
         </div>
+        <div id="successPage" class="hidden success-page">
+            <div class="success-message"></div>
+            <div id="successDetails" class="result-container"></div>
+            <!-- 移除 buttonContainer，我们将在需要时动态添加按钮 -->
+        </div>
+        <div id="result" class="hidden"></div>
     </div>
 
     <script>
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            const hash = window.location.hash.substring(1);
-            const params = new URLSearchParams(hash);
-            const key = params.get('key');
+            const urlParams = new URLSearchParams(window.location.search);
+            const key = urlParams.get('key');
             if (key) {
-                document.getElementById('key').value = key;
+                document.getElementById('newUserKey').value = key;
+                document.getElementById('existingUserKey').value = key;
             }
-
-            document.getElementById('registrationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const key = document.getElementById('key').value;
-                const id = document.getElementById('id').value;
-                
-                if (id.length < 5) {
-                    const messageElement = document.getElementById('message');
-                    messageElement.textContent = 'ID必须至少包含5个字符';
-                    messageElement.classList.remove('hidden');
-                    messageElement.classList.add('error');
-                    return;
-                }
-
-                document.getElementById('keyDisplay').textContent = key;
-                document.getElementById('idDisplay').textContent = id;
-                showPage('confirmPage');
-            });
         });
 
-        function submitForm() {
-            const key = document.getElementById('keyDisplay').textContent;
-            const id = document.getElementById('idDisplay').textContent;
-            const submitButton = document.getElementById('submitButton');
-            const confirmMessage = document.getElementById('confirmMessage');
-            
-            submitButton.textContent = '正在提交...';
-            submitButton.disabled = true;
-            confirmMessage.classList.add('hidden');
-            
-            let timeoutId = setTimeout(() => {
-                submitButton.textContent = '确认提交';
-                submitButton.disabled = false;
-                confirmMessage.textContent = '提交超时，请重试。';
-                confirmMessage.classList.remove('hidden');
-                confirmMessage.classList.add('error');
-            }, 15000);
-            
-            sendPostRequest({ KEY: key, USER_ID: id })
-                .then(response => {
-                    clearTimeout(timeoutId);
-                    handleResponse(response);
-                })
-                .catch(error => {
-                    clearTimeout(timeoutId);
-                    handleError(error);
-                    submitButton.textContent = '确认提交';
-                    submitButton.disabled = false;
-                });
+        function showPage(pageId) {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            document.getElementById(pageId).classList.add('fade-in');
         }
 
-        function sendPostRequest(data) {
-            const webhookUrl = 'https://n8n.colorland.top/webhook/1I4ZiK8ZnMEblfAJ/webhook/immersivetranslate';
-            
-            return fetch(webhookUrl, {
+        function goBack() {
+            showPage('homePage');
+        }
+
+        function sendWebhook(action) {
+            const key = action === 'id' ? document.getElementById('newUserKey').value : document.getElementById('existingUserKey').value;
+            const input = action === 'id' ? document.getElementById('newUserName').value : document.getElementById('existingUserApiKey').value;
+            let data = { key: key, way: action };
+
+            if (action === 'id') {
+                data.name = input;
+            } else {
+                data.api = input.startsWith('sk-') ? input.slice(3) : input;
+            }
+
+            fetch('https://n8n.colorland.top/webhook-test/e2801907-9780-4703-803b-aa1444d7a4d6', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify([data]),
             })
             .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
+                const statusCode = response.status;
+                return response.json().then(data => ({ status: statusCode, data: data }));
+            })
+            .then(({ status, data }) => {
+                let result = '';
+                let successMessage = '';
+
+                switch (status) {
+                    case 400:
+                        result = '<div class="result-title">KEY输入错误</div>';
+                        break;
+                    case 401:
+                        result = '<div class="result-title">API输入错误</div>';
+                        break;
+                    case 201:
+                        successMessage = '续期成功';
+                        result = `
+                            <div class="result-item">
+                                <span class="result-label">有效期至</span>
+                                <span class="result-value">${new Date(data.new_expired_time * 1000).toLocaleDateString()}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">原有效期至</span>
+                                <span class="result-value">${new Date(data.old_expired_time * 1000).toLocaleDateString()}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">续期天数</span>
+                                <span class="result-value">${data.added_days}天</span>
+                            </div>
+                        `;
+                        break;
+                    case 200:
+                        successMessage = '开号成功';
+                        result = `
+                            <div class="result-item">
+                                <span class="result-label">到期时间</span>
+                                <span class="result-value">${new Date(data.end_time * 1000).toLocaleDateString()}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">API-KEY</span>
+                                <span class="result-value" id="apiKeyContainer">sk-${data.key}</span>
+                            </div>
+                        `;
+                        // 为开号成功的情况添加按钮
+                        result += `
+                            <div class="button-container">
+                                <button id="copyButton" class="copy-button" onclick="copyApiKey()">复制 API-KEY</button>
+                                <button class="copy-button" onclick="window.open('https://cjsfy.apifox.cn/', '_blank')">查看使用方法</button>
+                            </div>
+                        `;
+                        break;
+                    default:
+                        result = '<div class="result-title">未知错误</div>';
                 }
-                return response.json();
+                
+                if (successMessage) {
+                    document.querySelector('.success-message').textContent = successMessage;
+                    document.getElementById('successDetails').innerHTML = result;
+                    showPage('successPage');
+                } else {
+                    document.getElementById('result').innerHTML = result;
+                    showPage('result');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = '发生错误，请稍后再试';
+                showPage('result');
             });
         }
 
-        function handleResponse(response) {
-            document.getElementById('resultMessage').textContent = response.message;
-            document.getElementById('apiKey').textContent = response.data.key;
-            showPage('resultPage');
-
-            document.getElementById('copyButton').addEventListener('click', function() {
-                copyToClipboard(this, response.data.key);
-            });
-
-            document.getElementById('usageButton').addEventListener('click', function() {
-                const apiKey = document.getElementById('apiKey').textContent;
-                window.open('instructions.html?apiKey=' + encodeURIComponent(apiKey), '_blank');
-            });
-        }
-
-        function handleError(error) {
-            const messageElement = document.getElementById('confirmMessage');
-            messageElement.textContent = error.message || '提交失败，请重试。';
-            messageElement.classList.remove('hidden');
-            messageElement.classList.add('error');
-        }
-
-        function copyToClipboard(button, text) {
-            navigator.clipboard.writeText(text).then(function() {
-                button.textContent = '已复制';
-                setTimeout(function() {
-                    button.textContent = '复制';
+        function copyApiKey() {
+            const apiKey = document.getElementById('apiKeyContainer').textContent;
+            navigator.clipboard.writeText(apiKey).then(() => {
+                const copyButton = document.getElementById('copyButton');
+                copyButton.textContent = '已复制';
+                copyButton.style.backgroundColor = 'var(--accent-color)';
+                setTimeout(() => {
+                    copyButton.textContent = '复制 API-KEY';
+                    copyButton.style.backgroundColor = 'var(--primary-color)';
                 }, 2000);
-            }, function(err) {
-                console.error('无法复制文本: ', err);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
             });
         }
     </script>
