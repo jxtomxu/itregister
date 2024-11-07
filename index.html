@@ -210,16 +210,16 @@
     <div class="container fade-in">
         <div id="homePage">
             <h1>沉浸式翻译<br>自助兑换</h1>
-            <button class="action-button pulse" onclick="showPage('newUserPage')">新用户注册</button>
-            <button class="action-button" onclick="showPage('existingUserPage')">老用户充值</button>
+            <button class="action-button pulse" onclick="showPage('newUserPage')">第一次买点这里</button>
+            <button class="action-button" onclick="showPage('existingUserPage')">续期点这里</button>
         </div>
         <div id="newUserPage" class="hidden">
             <h1>新用户注册</h1>
             <div class="input-container">
                 <input type="text" id="newUserKey" placeholder="Key" readonly>
-                <input type="text" id="newUserName" placeholder="请输入用户名">
-                <p class="input-description">用户名将用于后续售后服务，请谨慎填写。</p>
-                <button onclick="sendWebhook('id')">提交</button>
+                <input type="email" id="newUserEmail" placeholder="请输入邮箱地址">
+                <p class="input-description">邮箱地址将用于后续售后服务。</p>
+                <button id="newUserSubmit" onclick="sendWebhook('id')">提交</button>
                 <button onclick="goBack()">返回</button>
             </div>
         </div>
@@ -228,7 +228,7 @@
             <input type="text" id="existingUserKey" placeholder="Key" readonly>
             <input type="text" id="existingUserApiKey" placeholder="请输入API-KEY">
             <p class="input-description">API-KEY是以sk-开头的一串字符，请完整输入。</p>
-            <button onclick="sendWebhook('api')">提交</button>
+            <button id="existingUserSubmit" onclick="sendWebhook('api')">提交</button>
             <button onclick="goBack()">返回</button>
         </div>
         <div id="successPage" class="hidden success-page">
@@ -261,14 +261,22 @@
 
         function sendWebhook(action) {
             const key = action === 'id' ? document.getElementById('newUserKey').value : document.getElementById('existingUserKey').value;
-            const input = action === 'id' ? document.getElementById('newUserName').value : document.getElementById('existingUserApiKey').value;
+            const input = action === 'id' ? document.getElementById('newUserEmail').value : document.getElementById('existingUserApiKey').value;
             let data = { key: key, way: action };
 
             if (action === 'id') {
-                data.name = input;
+                if (!validateEmail(input)) {
+                    alert('请输入有效的邮箱地址');
+                    return;
+                }
+                data.email = input;
             } else {
                 data.api = input.startsWith('sk-') ? input.slice(3) : input;
             }
+
+            const submitButton = action === 'id' ? document.getElementById('newUserSubmit') : document.getElementById('existingUserSubmit');
+            submitButton.disabled = true;
+            submitButton.textContent = '正在提交...';
 
             fetch('https://n8n.colorland.top/webhook/e2801907-9780-4703-803b-aa1444d7a4d6', {
                 method: 'POST',
@@ -346,7 +354,18 @@
                 console.error('Error:', error);
                 document.getElementById('result').textContent = '发生错误，请稍后再试';
                 showPage('result');
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    submitButton.textContent = '提交';
+                }, 8000);
             });
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
 
         function copyApiKey() {
