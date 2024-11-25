@@ -291,7 +291,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify([data]),
+                body: JSON.stringify([data])
             })
             .then(response => {
                 const statusCode = response.status;
@@ -404,18 +404,38 @@
 
             fetch(`https://n8n.colorland.top/webhook/248c50a7-6c77-4c19-8eb6-8220f0193a69?email=${encodeURIComponent(email)}`)
                 .then(response => {
-                    console.log('Response status:', response.status); // 调试信息
+                    console.log('Response status:', response.status);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Received data:', data); // 调试信息
+                    console.log('Received data type:', typeof data);  // 添加数据类型检查
+                    console.log('Received data:', data);
+                    console.log('Is Array?', Array.isArray(data));   // 检查是否为数组
+                    if (Array.isArray(data)) {
+                        console.log('Array length:', data.length);   // 如果是数组，显示长度
+                    }
+                    
                     let result = '';
                     let successMessage = '';
 
-                    // 检查数据结构
-                    if (data && Array.isArray(data) && data.length > 0) {
-                        console.log('Found key info:', data[0]); // 调试信息
+                    // 修改数据处理逻辑
+                    if (typeof data === 'string') {
+                        // 尝试解析JSON字符串
+                        try {
+                            data = JSON.parse(data);
+                        } catch (e) {
+                            console.error('JSON parse error:', e);
+                        }
+                    }
+
+                    // 确保data是数组
+                    if (!Array.isArray(data)) {
+                        data = [data];  // 如果不是数组，将其转换为数组
+                    }
+
+                    if (data.length > 0 && data[0].id && data[0].key && data[0].expired_time) {
                         const keyInfo = data[0];
+                        console.log('Processing key info:', keyInfo);  // 添加处理信息的日志
                         successMessage = '查询成功';
                         result = `
                             <div class="result-item">
@@ -430,12 +450,12 @@
                                 <span class="result-label">到期时间</span>
                                 <span class="result-value">${new Date(parseInt(keyInfo.expired_time) * 1000).toLocaleDateString()}</span>
                             </div>
-                            <div class="button-container">
+                            <div style="text-align: center; margin-top: 20px;">
                                 <button class="copy-button" onclick="copyRecoveredApiKey()">复制 API-KEY</button>
                             </div>
                         `;
                     } else {
-                        console.log('No data found or invalid data structure'); // 调试信息
+                        console.log('Data validation failed');  // 添加验证失败的日志
                         result = '<div class="result-title">邮箱地址未找到</div>';
                     }
 
@@ -449,7 +469,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error details:', error); // 详细的错误信息
+                    console.error('Error details:', error);
                     document.getElementById('result').innerHTML = '<div class="result-title">查询失败，请稍后重试</div>';
                     showPage('result');
                 })
