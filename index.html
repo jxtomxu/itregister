@@ -212,6 +212,7 @@
             <h1>沉浸式翻译<br>自助兑换</h1>
             <button class="action-button pulse" onclick="showPage('newUserPage')">第一次买点这里</button>
             <button class="action-button" onclick="showPage('existingUserPage')">续期点这里</button>
+            <button class="action-button" onclick="showPage('forgotKeyPage')">忘记API-KEY点这里</button>
         </div>
         <div id="newUserPage" class="hidden">
             <h1>新用户注册</h1>
@@ -229,6 +230,13 @@
             <input type="text" id="existingUserApiKey" placeholder="请输入API-KEY">
             <p class="input-description">API-KEY是以sk-开头的一串字符，请完整输入。</p>
             <button id="existingUserSubmit" onclick="sendWebhook('api')">提交</button>
+            <button onclick="goBack()">返回</button>
+        </div>
+        <div id="forgotKeyPage" class="hidden">
+            <h1>找回API-KEY</h1>
+            <input type="email" id="recoveryEmail" placeholder="请输入注册时的邮箱地址">
+            <p class="input-description">请输入您注册时预留的邮箱地址。</p>
+            <button id="recoverySubmit" onclick="recoverApiKey()">查询</button>
             <button onclick="goBack()">返回</button>
         </div>
         <div id="successPage" class="hidden success-page">
@@ -372,6 +380,91 @@
             const apiKey = document.getElementById('apiKeyContainer').textContent;
             navigator.clipboard.writeText(apiKey).then(() => {
                 const copyButton = document.getElementById('copyButton');
+                copyButton.textContent = '已复制';
+                copyButton.style.backgroundColor = 'var(--accent-color)';
+                setTimeout(() => {
+                    copyButton.textContent = '复制 API-KEY';
+                    copyButton.style.backgroundColor = 'var(--primary-color)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        function recoverApiKey() {
+            const email = document.getElementById('recoveryEmail').value;
+            if (!validateEmail(email)) {
+                alert('请输入有效的邮箱地址');
+                return;
+            }
+
+            const submitButton = document.getElementById('recoverySubmit');
+            submitButton.disabled = true;
+            submitButton.textContent = '正在查询...';
+
+            fetch(`https://n8n.colorland.top/webhook/248c50a7-6c77-4c19-8eb6-8220f0193a69?email=${encodeURIComponent(email)}`)
+                .then(response => {
+                    console.log('Response status:', response.status); // 调试信息
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data); // 调试信息
+                    let result = '';
+                    let successMessage = '';
+
+                    // 检查数据结构
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        console.log('Found key info:', data[0]); // 调试信息
+                        const keyInfo = data[0];
+                        successMessage = '查询成功';
+                        result = `
+                            <div class="result-item">
+                                <span class="result-label">邮箱地址</span>
+                                <span class="result-value">${keyInfo.id}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">API-KEY</span>
+                                <span class="result-value" id="recoveredApiKey">${keyInfo.key}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">到期时间</span>
+                                <span class="result-value">${new Date(parseInt(keyInfo.expired_time) * 1000).toLocaleDateString()}</span>
+                            </div>
+                            <div class="button-container">
+                                <button class="copy-button" onclick="copyRecoveredApiKey()">复制 API-KEY</button>
+                            </div>
+                        `;
+                    } else {
+                        console.log('No data found or invalid data structure'); // 调试信息
+                        result = '<div class="result-title">邮箱地址未找到</div>';
+                    }
+
+                    if (successMessage) {
+                        document.querySelector('.success-message').textContent = successMessage;
+                        document.getElementById('successDetails').innerHTML = result;
+                        showPage('successPage');
+                    } else {
+                        document.getElementById('result').innerHTML = result;
+                        showPage('result');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error details:', error); // 详细的错误信息
+                    document.getElementById('result').innerHTML = '<div class="result-title">查询失败，请稍后重试</div>';
+                    showPage('result');
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = '查询';
+                    }, 5000);
+                });
+        }
+
+        function copyRecoveredApiKey() {
+            const apiKey = document.getElementById('recoveredApiKey').textContent;
+            navigator.clipboard.writeText(apiKey).then(() => {
+                const copyButton = document.querySelector('.copy-button');
                 copyButton.textContent = '已复制';
                 copyButton.style.backgroundColor = 'var(--accent-color)';
                 setTimeout(() => {
